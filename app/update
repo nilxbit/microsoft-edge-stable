@@ -1,0 +1,25 @@
+#!/bin/bash
+# set -e
+
+if [ "$EUID" -ne 0 ]; then
+	echo '"update" needs root; use `--user=root` on `docker exec`'
+	exit -1
+fi
+
+apt-get update -qq \
+	-o Dir::Etc::sourcelist="sources.list.d/microsoft-edge.list" \
+	-o Dir::Etc::sourceparts="-" \
+	-o API::Get::List-Cleanup="0"
+
+for pkg in "microsoft-edge-stable"; do
+
+	read -r -d '' _ iv _ cv _ <<< $(apt-cache policy $pkg | awk '{ print $2 }')
+
+	if [ "$iv" != "$cv" ]; then
+		apt-get install --only-upgrade -y -qq $pkg
+		echo $pkg upgraded to $cv
+	else
+		echo $pkg $iv is latest
+	fi
+
+done
