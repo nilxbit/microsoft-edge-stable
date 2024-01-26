@@ -1,8 +1,9 @@
-FROM ubuntu:22.04
+FROM debian:latest
 
 LABEL maintainer="user <user@docker.com>"
 
-ENV VNC_SCREEN_SIZE=1024x768
+ENV VNC_SCREEN_SIZE=2560x1440
+ENV VNC_SCREEN_DEPTH=32
 
 ENV TZ=Asia/Shanghai
 ENV LC_ALL=C
@@ -17,8 +18,7 @@ RUN apt-get update \
 	fonts-noto-cjk \
 	pulseaudio \
 	supervisor \
-	xvfb \
-	x11vnc \
+	tigervnc-standalone-server \
 	eterm \
 	ca-certificates \
 	locales
@@ -29,8 +29,7 @@ ADD https://packages.microsoft.com/keys/microsoft.asc \
 RUN apt-key add /tmp/microsoft.asc \
 	&& echo "deb https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list \
 	&& apt-get update \
-	&& apt-get install -y microsoft-edge-stable \
-	&& DEBIAN_FRONTEND=noninteractive apt-get -f --yes install
+	&& apt-get install -y microsoft-edge-stable
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
 	echo $TZ > /etc/timezone && \
